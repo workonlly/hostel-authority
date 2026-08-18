@@ -33,7 +33,7 @@ export async function apiFetch(
 
   if (
     !isAuthEndpoint &&
-    (response.status === 401 || response.status === 403)
+    response.status === 401
   ) {
     localStorage.clear();
     window.location.href = "/login";
