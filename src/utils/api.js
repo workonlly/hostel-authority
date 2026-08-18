@@ -1,5 +1,6 @@
-const BASE_URL =
-  (import.meta.env.VITE_API_URL || "http://localhost:4000").replace(/\/$/, "");
+const isRenderHost = typeof window !== "undefined" && window.location.hostname.includes("onrender.com");
+const DEFAULT_URL = isRenderHost ? "https://hostel-backend-cveq.onrender.com" : "http://localhost:4000";
+const BASE_URL = (import.meta.env.VITE_API_URL || DEFAULT_URL).replace(/\/$/, "");
 
 export async function apiFetch(
   endpoint,
