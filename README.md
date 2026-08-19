@@ -10,6 +10,16 @@ The comprehensive administrative control centre for **NIT Hamirpur Hostel Admini
 
 ---
 
+### 🌐 Related Repositories in the NITH Ecosystem
+
+| Repository | Description | Live GitHub Link |
+| :--- | :--- | :--- |
+| **`hostel-backend`** | Core REST API Gateway & PostgreSQL Database Engine | [🔗 github.com/workonlly/hostel-backend](https://github.com/workonlly/hostel-backend) |
+| **`hostel-frontend`** | Student Web Application (Registration, Outpass Forms & Dynamic QR Gate Pass) | [🔗 github.com/workonlly/hostel-frontend](https://github.com/workonlly/hostel-frontend) |
+| **`hostel-guard`** | Offline-First Security Terminal & Gate Scanner (Dexie.js IndexedDB & Fingerprinting) | [🔗 github.com/workonlly/hostel-guard](https://github.com/workonlly/hostel-guard) |
+
+---
+
 ## 📑 Table of Contents
 
 - [Role-Based Access Hierarchy](#-role-based-access-hierarchy)
