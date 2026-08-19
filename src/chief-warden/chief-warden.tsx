@@ -19,6 +19,39 @@ import {
   Menu
 } from "lucide-react";
 
+/* ================= DEPARTMENT MAP ================= */
+const DEPARTMENT_ALIASES: Record<string, string> = {
+    'COMPUTER SCIENCE ENGINEERING': 'CSE',
+    'COMPUTER SCIENCE & ENGINEERING': 'CSE',
+    'CSE': 'CSE',
+    'MECHANICAL ENGINEERING': 'ME',
+    'ME': 'ME',
+    'CIVIL ENGINEERING': 'CE',
+    'CE': 'CE',
+    'ELECTRICAL ENGINEERING': 'EE',
+    'EE': 'EE',
+    'ELECTRONICS & COMMUNICATION ENGINEERING': 'ECE',
+    'ELECTRONICS AND COMMUNICATION ENGINEERING': 'ECE',
+    'ECE': 'ECE',
+    'MATHEMATICS & COMPUTING': 'MNC',
+    'MATHEMATICS AND COMPUTING': 'MNC',
+    'MNC': 'MNC',
+    'ENGINEERING PHYSICS': 'ENGINEERING PHYSICS',
+    'BPH': 'ENGINEERING PHYSICS',
+    'MATERIAL SCIENCE': 'MATERIAL SCIENCE',
+    'BMS': 'MATERIAL SCIENCE',
+    'CHEMICAL ENGINEERING': 'CHEMICAL ENGINEERING',
+    'CHEMICAL': 'CHEMICAL ENGINEERING',
+    'CH': 'CHEMICAL ENGINEERING',
+    'ARCHITECTURE': 'ARCHITECTURE',
+    'BAR': 'ARCHITECTURE',
+    'DUAL DEGREE CSE': 'DUAL DEGREE CSE',
+    'DCS': 'DUAL DEGREE CSE',
+    'DUAL DEGREE ELECTRONICS': 'DUAL DEGREE ELECTRONICS',
+    'DEC': 'DUAL DEGREE ELECTRONICS',
+};
+const UNIQUE_DEPARTMENTS = Array.from(new Set(Object.values(DEPARTMENT_ALIASES))).sort();
+
 /* ================= TYPES ================= */
 
 interface Remark {
@@ -453,6 +486,7 @@ function ChiefWarden() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [hostelFilter, setHostelFilter] = useState("All");
   const [campusFilter, setCampusFilter] = useState("All"); // "All", "Outside", "Inside"
+  const [departmentFilter, setDepartmentFilter] = useState("All");
 
   /* ================= DYNAMIC TIME RANGE & DATE CONSTRAINTS ================= */
   const [fromTime, setFromTime] = useState("20:00"); // Start time (Default 8:00 PM)
@@ -842,6 +876,10 @@ function ChiefWarden() {
         (campusFilter === "Outside" && pass.std_status === "Out") ||
         (campusFilter === "Inside" && pass.std_status !== "Out");
 
+      const mappedDept = pass.department ? DEPARTMENT_ALIASES[pass.department.toUpperCase()] || pass.department : null;
+      const matchesDepartment =
+        departmentFilter === "All" || mappedDept === departmentFilter;
+
       const matchesDate =
         !selectedDate ||
         (pass.created_at && pass.created_at.startsWith(selectedDate)) ||
@@ -866,11 +904,12 @@ function ChiefWarden() {
         matchesStatus &&
         matchesHostel &&
         matchesCampus &&
+        matchesDepartment &&
         matchesDate &&
         matchesQuick
       );
     });
-  }, [outpasses, search, statusFilter, hostelFilter, campusFilter, selectedDate, quickFilter]);
+  }, [outpasses, search, statusFilter, hostelFilter, campusFilter, departmentFilter, selectedDate, quickFilter]);
 
   /* ================= FILTER & PAGINATE COMPLAINTS ================= */
 
@@ -894,9 +933,13 @@ function ChiefWarden() {
         !selectedDate ||
         (comp.date_created && comp.date_created.startsWith(selectedDate));
 
-      return matchesSearch && matchesHostel && matchesDate;
+      const mappedDept = comp.student_department ? DEPARTMENT_ALIASES[comp.student_department.toUpperCase()] || comp.student_department : null;
+      const matchesDepartment =
+        departmentFilter === "All" || mappedDept === departmentFilter;
+
+      return matchesSearch && matchesHostel && matchesDate && matchesDepartment;
     });
-  }, [complaints, search, hostelFilter, selectedDate]);
+  }, [complaints, search, hostelFilter, selectedDate, departmentFilter]);
 
   /* ================= FILTER & PAGINATE ESCALATED COMPLAINTS ================= */
 
@@ -920,9 +963,13 @@ function ChiefWarden() {
         !selectedDate ||
         (comp.date_created && comp.date_created.startsWith(selectedDate));
 
-      return matchesSearch && matchesHostel && matchesDate;
+      const mappedDept = comp.student_department ? DEPARTMENT_ALIASES[comp.student_department.toUpperCase()] || comp.student_department : null;
+      const matchesDepartment =
+        departmentFilter === "All" || mappedDept === departmentFilter;
+
+      return matchesSearch && matchesHostel && matchesDate && matchesDepartment;
     });
-  }, [escalatedComplaints, search, hostelFilter, selectedDate]);
+  }, [escalatedComplaints, search, hostelFilter, selectedDate, departmentFilter]);
 
   /* ================= FILTER & PAGINATE LATE LOGS (TIME RANGE) ================= */
 
@@ -993,9 +1040,13 @@ function ChiefWarden() {
         (log.departure_datetime && log.departure_datetime.startsWith(selectedDate)) ||
         (log.created_at && log.created_at.startsWith(selectedDate));
 
-      return matchesSearch && matchesHostel && matchesCampus && matchesDate;
+      const mappedDept = log.department ? DEPARTMENT_ALIASES[log.department.toUpperCase()] || log.department : null;
+      const matchesDepartment =
+        departmentFilter === "All" || mappedDept === departmentFilter;
+
+      return matchesSearch && matchesHostel && matchesCampus && matchesDate && matchesDepartment;
     });
-  }, [lateLogs, outpasses, search, hostelFilter, campusFilter, fromTime, toTime, selectedDate]);
+  }, [lateLogs, outpasses, search, hostelFilter, campusFilter, fromTime, toTime, selectedDate, departmentFilter]);
 
   /* ================= STATISTICS ================= */
 
@@ -1492,6 +1543,21 @@ function ChiefWarden() {
                 );
               })}
             </select>
+
+            <select
+              value={departmentFilter}
+              onChange={(e) =>
+                handleFilterChange(setDepartmentFilter, e.target.value)
+              }
+              className="bg-gray-50/50 border border-gray-200 rounded-2xl px-4 py-3 text-sm font-medium outline-none focus:bg-white focus:border-[#6d0f16] transition cursor-pointer"
+            >
+              <option value="All">All Departments</option>
+              {UNIQUE_DEPARTMENTS.map((dept) => (
+                <option key={dept} value={dept}>
+                  {dept}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* QUICK FILTER CHIPS */}
@@ -1656,6 +1722,7 @@ function ChiefWarden() {
                   setStatusFilter("All");
                   setHostelFilter("All");
                   setCampusFilter("All");
+                  setDepartmentFilter("All");
                   setSelectedDate("");
                   setQuickFilter("All");
                 }}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
 
@@ -8,6 +8,18 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect already-logged-in authority users away from the login page
+  useEffect(() => {
+    const role = localStorage.getItem("role")?.toLowerCase();
+    const user = localStorage.getItem("user");
+    if (user && role) {
+      const normalized = role === "chief warden" ? "chief-warden" : role === "attendent" ? "attendant" : role;
+      if (["chief-warden", "warden", "attendant"].includes(normalized)) {
+        navigate(`/${normalized}`, { replace: true });
+      }
+    }
+  }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,11 +37,9 @@ export default function Login() {
         body: JSON.stringify({ email, password }),
       });
 
-      if (data.token || data.accessToken) {
-        localStorage.setItem("token", data.token || data.accessToken);
-      }
+      // Only store non-sensitive display data — tokens live in HttpOnly cookies set by the server
       localStorage.setItem("user", JSON.stringify(data.user));
-      
+
       const rawRole = data.user.role || data.user.status || "authority";
       let normalizedRole = rawRole.toLowerCase().replace(/[\s_]+/g, "-");
       if (normalizedRole === "attendent") {

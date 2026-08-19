@@ -139,7 +139,7 @@ function Warden() {
       <nav className="w-full bg-[#5b0e0e] text-white shadow-md px-6 py-4 flex justify-between items-center z-10 sticky top-0">
                 <div className="flex items-center gap-3 justify-center ">
   <img
-    src="l.png"
+    src="/l.png"
     alt="nithlogo"
     width={60}
     height={60}

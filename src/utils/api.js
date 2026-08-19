@@ -6,19 +6,19 @@ export async function apiFetch(
   endpoint,
   options = {}
 ) {
-
-  const token = localStorage.getItem("token");
+  // Role is non-sensitive display data stored in localStorage for routing.
+  // Tokens are in HttpOnly cookies and are sent automatically by the browser
+  // via credentials: "include" — we never read or forward them from JavaScript.
   const role = localStorage.getItem("role");
 
   const response = await fetch(
     `${BASE_URL}${endpoint}`,
     {
       ...options,
-      credentials: "include",
+      credentials: "include", // sends HttpOnly cookies automatically
       headers: {
         "Content-Type": "application/json",
         role: role || "",
-        ...(token ? { Authorization: `Bearer ${token}`, token } : {}),
         ...(options.headers || {}),
       },
     }
@@ -26,10 +26,11 @@ export async function apiFetch(
 
   /* ================= AUTO LOGOUT ================= */
 
-  const isAuthEndpoint = 
-    endpoint.startsWith("/api/auth/") || 
+  const isAuthEndpoint =
+    endpoint.startsWith("/api/auth/") ||
     endpoint.startsWith("/api/authority/login") ||
-    endpoint.startsWith("/api/authority/refresh");
+    endpoint.startsWith("/api/authority/refresh") ||
+    endpoint.includes("/me");
 
   if (
     !isAuthEndpoint &&
