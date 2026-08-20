@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
+import { broadcastSessionLogout } from "../utils/sessionSync";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import ChiefWardenSidebar from "./ChiefWardenSidebar";
@@ -735,8 +736,10 @@ function ChiefWarden() {
   /* ================= LOGOUT ================= */
 
   function logout() {
+    apiFetch("/api/authority/logout", { method: "POST" }).catch(() => {});
+    broadcastSessionLogout();
     localStorage.clear();
-    navigate("/");
+    navigate("/login");
   }
 
   /* ================= HELPER FOR FORMATTING TIME ================= */

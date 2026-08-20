@@ -3,11 +3,16 @@ import { Outlet, useLocation } from "react-router-dom";
 import AttendantSidebar from "./AttendantSidebar";
 import { Menu } from "lucide-react";
 
+import { apiFetch } from "../utils/api";
+import { broadcastSessionLogout } from "../utils/sessionSync";
+
 export default function AdminLayout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   function handleLogout() {
+    apiFetch("/api/authority/logout", { method: "POST" }).catch(() => {});
+    broadcastSessionLogout();
     localStorage.clear();
     window.location.href = "/login";
   }

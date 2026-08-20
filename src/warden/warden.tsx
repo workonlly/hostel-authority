@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { apiFetch } from "../utils/api";
+import { broadcastSessionLogout } from "../utils/sessionSync";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import WardenSidebar from "./WardenSidebar";
@@ -464,6 +465,8 @@ export default function Warden() {
   /* ================= HANDLERS ================= */
 
   function logout() {
+    apiFetch("/api/authority/logout", { method: "POST" }).catch(() => {});
+    broadcastSessionLogout();
     localStorage.clear();
     navigate("/login");
   }
